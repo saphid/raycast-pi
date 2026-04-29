@@ -1,0 +1,196 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "raycast-pi",
+  "title": "Pi",
+  "description": "Raycast companion for the Pi coding agent: quick ask, session search, project launch, and terminal handoff.",
+  "icon": "icon.png",
+  "author": "qazi0",
+  "categories": [
+    "Developer Tools",
+    "Productivity"
+  ],
+  "license": "MIT",
+  "commands": [
+    {
+      "name": "ask-pi",
+      "title": "Ask Pi",
+      "subtitle": "Quick Ask",
+      "description": "Ask Pi a quick question with optional project context",
+      "mode": "view",
+      "arguments": [
+        {
+          "name": "question",
+          "placeholder": "What do you want to ask Pi?",
+          "type": "text",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "projects",
+      "title": "Launch Project",
+      "description": "Open Pi in a project discovered from session history",
+      "mode": "view"
+    },
+    {
+      "name": "sessions",
+      "title": "Browse Sessions",
+      "description": "Find, preview, resume, and fork Pi sessions",
+      "mode": "view"
+    },
+    {
+      "name": "transform-selection",
+      "title": "Transform Selection",
+      "description": "Use Pi to explain, refactor, test, or improve selected text",
+      "mode": "view"
+    },
+    {
+      "name": "git-actions",
+      "title": "Git Actions",
+      "description": "Launch Git-aware Pi workflows in a visible terminal",
+      "mode": "view"
+    },
+    {
+      "name": "resources",
+      "title": "Browse Pi Resources",
+      "description": "Browse Pi prompt templates and skills",
+      "mode": "view"
+    },
+    {
+      "name": "status",
+      "title": "Pi Status",
+      "description": "Show recent Pi session activity",
+      "mode": "menu-bar",
+      "interval": "5m"
+    }
+  ],
+  "preferences": [
+    {
+      "name": "piBinaryPath",
+      "type": "textfield",
+      "title": "Pi Binary Path",
+      "description": "Path to the pi executable. Leave empty to auto-detect from PATH and common install locations.",
+      "required": false
+    },
+    {
+      "name": "agentDir",
+      "type": "directory",
+      "title": "Pi Agent Directory",
+      "description": "Directory containing Pi sessions, prompts, and skills. Defaults to ~/.pi/agent.",
+      "required": false
+    },
+    {
+      "name": "defaultProject",
+      "type": "directory",
+      "title": "Default Project",
+      "description": "Default working directory for Ask Pi and terminal handoffs.",
+      "required": false
+    },
+    {
+      "name": "defaultModel",
+      "type": "textfield",
+      "title": "Default Model",
+      "description": "Optional Pi model pattern, for example openai/gpt-4o or anthropic/claude-sonnet-4.",
+      "required": false
+    },
+    {
+      "name": "thinkingLevel",
+      "type": "dropdown",
+      "title": "Thinking Level",
+      "description": "Optional thinking level passed to Pi.",
+      "default": "",
+      "required": false,
+      "data": [
+        {
+          "title": "Use Pi Default",
+          "value": ""
+        },
+        {
+          "title": "Off",
+          "value": "off"
+        },
+        {
+          "title": "Minimal",
+          "value": "minimal"
+        },
+        {
+          "title": "Low",
+          "value": "low"
+        },
+        {
+          "title": "Medium",
+          "value": "medium"
+        },
+        {
+          "title": "High",
+          "value": "high"
+        },
+        {
+          "title": "Extra High",
+          "value": "xhigh"
+        }
+      ]
+    },
+    {
+      "name": "terminalApp",
+      "type": "dropdown",
+      "title": "Terminal Application",
+      "description": "Terminal used for visible Pi handoff.",
+      "default": "default",
+      "data": [
+        {
+          "title": "System Default",
+          "value": "default"
+        },
+        {
+          "title": "Terminal.app",
+          "value": "terminal"
+        },
+        {
+          "title": "iTerm",
+          "value": "iterm"
+        },
+        {
+          "title": "Ghostty",
+          "value": "ghostty"
+        },
+        {
+          "title": "Warp",
+          "value": "warp"
+        },
+        {
+          "title": "Kitty",
+          "value": "kitty"
+        },
+        {
+          "title": "Alacritty",
+          "value": "alacritty"
+        }
+      ],
+      "required": false
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.104.13",
+    "@raycast/utils": "^1.19.1"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^1.0.11",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "eslint": "^8.57.1",
+    "prettier": "^3.5.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.2.0"
+  },
+  "scripts": {
+    "build": "ray build --skip-types -e dist -o dist",
+    "dev": "ray develop",
+    "fix-lint": "ray lint --fix",
+    "lint": "ray lint",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "echo 'Use npm run publish for Raycast Store publishing.' && exit 1",
+    "publish": "npx @raycast/api@latest publish"
+  }
+}
