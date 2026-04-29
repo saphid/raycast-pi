@@ -31,8 +31,13 @@ npm run build
 Preferred Store path:
 
 1. Fork https://github.com/raycast/extensions with the publishing account.
-2. Copy this repo into `extensions/pi-coding-agent`.
-3. Verify manifest:
+2. Prepare the extension folder:
+
+   ```bash
+   ./scripts/prepare-raycast-store.sh /path/to/raycast/extensions <real-raycast-username>
+   ```
+
+3. Verify manifest in `extensions/pi-coding-agent`:
    - `name`: `pi-coding-agent`
    - `title`: `Pi Coding Agent`
    - `author`: real Raycast username

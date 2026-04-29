@@ -65,6 +65,10 @@ npm run build
 - **Max Indexed Sessions** — newest 100, newest 500, or all.
 - **Terminal Application** — Terminal.app, iTerm, Ghostty, Warp, Kitty, Alacritty, or default.
 
+## GitHub Pages
+
+Project page: https://saphid.github.io/raycast-pi/
+
 ## Publishing note
 
-Raycast's lint requires `package.json.author` to be an existing Raycast Store username. The GitHub repo lives under `SAPHID`; before a Store submission, replace the manifest author with the actual Raycast account that will publish the extension.
+Raycast's lint requires `package.json.author` to be an existing Raycast Store username. The GitHub repo lives under `SAPHID`; before a Store submission, replace the manifest author with the actual Raycast account that will publish the extension. Use `scripts/prepare-raycast-store.sh` to copy this repo into a `raycast/extensions` checkout.
