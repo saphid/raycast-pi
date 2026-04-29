@@ -28,6 +28,8 @@ declare type Preferences = ExtensionPreferences
 declare namespace Preferences {
   /** Preferences accessible in the `ask-pi` command */
   export type AskPi = ExtensionPreferences & {}
+  /** Preferences accessible in the `ask-pi-detail` command */
+  export type AskPiDetail = ExtensionPreferences & {}
   /** Preferences accessible in the `projects` command */
   export type Projects = ExtensionPreferences & {}
   /** Preferences accessible in the `sessions` command */
@@ -45,6 +47,11 @@ declare namespace Preferences {
 declare namespace Arguments {
   /** Arguments passed to the `ask-pi` command */
   export type AskPi = {
+  /** What do you want to ask Pi? */
+  "question": string
+}
+  /** Arguments passed to the `ask-pi-detail` command */
+  export type AskPiDetail = {
   /** What do you want to ask Pi? */
   "question": string
 }

@@ -1,141 +1,51 @@
 import {
-  Action,
-  ActionPanel,
-  Detail,
-  Form,
+  Clipboard,
   getPreferenceValues,
-  Icon,
+  showHUD,
   showToast,
   Toast,
-  useNavigation,
 } from "@raycast/api";
-import { useEffect, useState } from "react";
 import { defaultProjectPath } from "./lib/discovery";
 import { runPiPrint } from "./lib/piCli";
-import { launchPiInTerminal } from "./lib/terminal";
 
 type CommandProps = {
   arguments: Arguments.AskPi;
 };
 
-type FormValues = {
-  question: string;
-  cwd: string;
-};
-
-function AnswerView({ question, cwd }: { question: string; cwd: string }) {
+export default async function Command(props: CommandProps) {
   const preferences = getPreferenceValues<Preferences>();
-  const [answer, setAnswer] = useState("");
-  const [error, setError] = useState<string | undefined>();
-  const [isLoading, setIsLoading] = useState(true);
+  const question = props.arguments.question?.trim();
 
-  useEffect(() => {
-    let cancelled = false;
-    setAnswer("");
-    setError(undefined);
-    setIsLoading(true);
-
-    runPiPrint(question, {
-      cwd,
-      preferences,
-      onData: (chunk) => {
-        if (!cancelled) setAnswer((current) => current + chunk);
-      },
-    })
-      .then((result) => {
-        if (!cancelled) setAnswer(result);
-      })
-      .catch((err: unknown) => {
-        if (!cancelled)
-          setError(err instanceof Error ? err.message : String(err));
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [cwd, question]);
-
-  const markdown = error
-    ? `# Pi failed\n\n\`\`\`\n${error}\n\`\`\``
-    : answer || "Waiting for Pi…";
-
-  return (
-    <Detail
-      isLoading={isLoading}
-      markdown={markdown}
-      actions={
-        <ActionPanel>
-          <Action.CopyToClipboard
-            title="Copy Answer"
-            content={answer || error || ""}
-          />
-          <Action
-            title="Continue in Terminal"
-            icon={Icon.Terminal}
-            onAction={() =>
-              launchPiInTerminal({
-                cwd,
-                prompt: question,
-                terminalApp: preferences.terminalApp,
-                preferences,
-              })
-            }
-          />
-        </ActionPanel>
-      }
-    />
-  );
-}
-
-export default function Command(props: CommandProps) {
-  const preferences = getPreferenceValues<Preferences>();
-  const { push } = useNavigation();
-  const initialQuestion = props.arguments.question ?? "";
-
-  async function submit(values: FormValues) {
-    if (!values.question.trim()) {
-      await showToast({
-        style: Toast.Style.Failure,
-        title: "Enter a question for Pi",
-      });
-      return;
-    }
-
-    push(
-      <AnswerView
-        question={values.question.trim()}
-        cwd={defaultProjectPath(values.cwd)}
-      />,
-    );
+  if (!question) {
+    await showToast({
+      style: Toast.Style.Failure,
+      title: "Ask Pi needs a question",
+      message:
+        "Select Ask Pi, press Tab, type your question, then press Enter.",
+    });
+    return;
   }
 
-  return (
-    <Form
-      actions={
-        <ActionPanel>
-          <Action.SubmitForm
-            title="Ask Pi"
-            icon={Icon.Terminal}
-            onSubmit={submit}
-          />
-        </ActionPanel>
-      }
-    >
-      <Form.TextArea
-        id="question"
-        title="Question"
-        placeholder="Ask Pi…"
-        defaultValue={initialQuestion}
-      />
-      <Form.TextField
-        id="cwd"
-        title="Project Directory"
-        defaultValue={defaultProjectPath(preferences.defaultProject)}
-      />
-      <Form.Description text="Quick Ask runs `pi -p` from Raycast. Use Continue in Terminal for visible agentic work." />
-    </Form>
-  );
+  const toast = await showToast({
+    style: Toast.Style.Animated,
+    title: "Asking Pi…",
+    message: "The answer will be copied to the clipboard.",
+  });
+
+  try {
+    const answer = await runPiPrint(question, {
+      cwd: defaultProjectPath(preferences.defaultProject),
+      preferences,
+    });
+
+    await Clipboard.copy(answer);
+    toast.style = Toast.Style.Success;
+    toast.title = "Pi answer copied";
+    toast.message = "Paste it anywhere with ⌘V.";
+    await showHUD("Pi answer copied to clipboard");
+  } catch (error) {
+    toast.style = Toast.Style.Failure;
+    toast.title = "Pi failed";
+    toast.message = error instanceof Error ? error.message : String(error);
+  }
 }
