@@ -1,3 +1,4 @@
+import { LocalStorage } from "@raycast/api";
 import type { Dirent } from "fs";
 import fs from "fs/promises";
 import os from "os";
@@ -11,6 +12,7 @@ import {
 } from "./sessionParser";
 
 export type ResourceType = "prompt" | "skill";
+export type MaxIndexedSessions = "100" | "500" | "all";
 
 export type PiResource = {
   type: ResourceType;
@@ -19,6 +21,24 @@ export type PiResource = {
   filePath: string;
   directory: string;
 };
+
+type FileCandidate = {
+  filePath: string;
+  mtimeMs: number;
+  mtime: Date;
+};
+
+type CachedSession = Omit<PiSession, "createdAt" | "lastModified"> & {
+  createdAt?: string;
+  lastModified: string;
+};
+
+type SessionCache = {
+  version: 1;
+  sessions: Record<string, { mtimeMs: number; session: CachedSession }>;
+};
+
+const SESSION_CACHE_KEY = "pi-session-summary-cache-v1";
 
 async function exists(filePath: string): Promise<boolean> {
   try {
@@ -62,30 +82,119 @@ async function walk(
   return result;
 }
 
-export async function listPiSessions(agentDir?: string): Promise<PiSession[]> {
+function sessionToCache(session: PiSession): CachedSession {
+  return {
+    ...session,
+    createdAt: session.createdAt?.toISOString(),
+    lastModified: session.lastModified.toISOString(),
+  };
+}
+
+function sessionFromCache(session: CachedSession): PiSession {
+  return {
+    ...session,
+    createdAt: session.createdAt ? new Date(session.createdAt) : undefined,
+    lastModified: new Date(session.lastModified),
+  };
+}
+
+async function readSessionCache(): Promise<SessionCache> {
+  const raw = await LocalStorage.getItem<string>(SESSION_CACHE_KEY);
+  if (!raw) return { version: 1, sessions: {} };
+  try {
+    const parsed = JSON.parse(raw) as SessionCache;
+    if (parsed.version === 1 && parsed.sessions) return parsed;
+  } catch {
+    // Ignore corrupt cache and rebuild incrementally.
+  }
+  return { version: 1, sessions: {} };
+}
+
+async function writeSessionCache(cache: SessionCache): Promise<void> {
+  await LocalStorage.setItem(SESSION_CACHE_KEY, JSON.stringify(cache));
+}
+
+function maxSessionCount(maxIndexedSessions?: MaxIndexedSessions): number {
+  if (maxIndexedSessions === "100") return 100;
+  if (maxIndexedSessions === "all") return 3000;
+  return 500;
+}
+
+async function findSessionFiles(
+  agentDir: string,
+  maxIndexedSessions?: MaxIndexedSessions,
+): Promise<FileCandidate[]> {
   const sessionsDir = path.join(getDefaultAgentDir(agentDir), "sessions");
   const files = await walk(
     sessionsDir,
     (filePath) => filePath.endsWith(".jsonl"),
     3000,
   );
-  const sessions = await Promise.all(
+  const candidates = await Promise.all(
     files.map(async (filePath) => {
-      const [content, stat] = await Promise.all([
-        fs.readFile(filePath, "utf8"),
-        fs.stat(filePath),
-      ]);
-      return parseSessionContent(content, filePath, stat.mtime);
+      const stat = await fs.stat(filePath);
+      return { filePath, mtimeMs: stat.mtimeMs, mtime: stat.mtime };
     }),
   );
 
+  return candidates
+    .sort((a, b) => b.mtimeMs - a.mtimeMs)
+    .slice(0, maxSessionCount(maxIndexedSessions));
+}
+
+export async function listPiSessions(
+  agentDir?: string,
+  maxIndexedSessions?: MaxIndexedSessions,
+): Promise<PiSession[]> {
+  const files = await findSessionFiles(
+    getDefaultAgentDir(agentDir),
+    maxIndexedSessions,
+  );
+  const cache = await readSessionCache();
+  let cacheChanged = false;
+
+  const sessions = await Promise.all(
+    files.map(async (candidate) => {
+      const cached = cache.sessions[candidate.filePath];
+      if (cached && cached.mtimeMs === candidate.mtimeMs)
+        return sessionFromCache(cached.session);
+
+      const content = await fs.readFile(candidate.filePath, "utf8");
+      const session = parseSessionContent(
+        content,
+        candidate.filePath,
+        candidate.mtime,
+      );
+      cache.sessions[candidate.filePath] = {
+        mtimeMs: candidate.mtimeMs,
+        session: sessionToCache(session),
+      };
+      cacheChanged = true;
+      return session;
+    }),
+  );
+
+  const activeFiles = new Set(files.map((file) => file.filePath));
+  for (const filePath of Object.keys(cache.sessions)) {
+    if (!activeFiles.has(filePath)) {
+      delete cache.sessions[filePath];
+      cacheChanged = true;
+    }
+  }
+
+  if (cacheChanged) await writeSessionCache(cache);
   return sessions.sort(
     (a, b) => b.lastModified.getTime() - a.lastModified.getTime(),
   );
 }
 
-export async function listPiProjects(agentDir?: string): Promise<PiProject[]> {
-  return groupSessionsByProject(await listPiSessions(agentDir));
+export async function listPiProjects(
+  agentDir?: string,
+  maxIndexedSessions?: MaxIndexedSessions,
+): Promise<PiProject[]> {
+  return groupSessionsByProject(
+    await listPiSessions(agentDir, maxIndexedSessions),
+  );
 }
 
 export async function discoverResources(options: {

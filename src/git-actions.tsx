@@ -45,7 +45,7 @@ const GIT_ACTIONS = [
 export default function Command() {
   const preferences = getPreferenceValues<Preferences>();
   const { data: projects = [], isLoading } = usePromise(() =>
-    listPiProjects(preferences.agentDir),
+    listPiProjects(preferences.agentDir, preferences.maxIndexedSessions),
   );
 
   return (
@@ -53,6 +53,11 @@ export default function Command() {
       isLoading={isLoading}
       searchBarPlaceholder="Search projects for Git actions…"
     >
+      <List.EmptyView
+        icon={Icon.Code}
+        title="No Pi projects found"
+        description="Git actions use projects discovered from Pi session history. Start a Pi session in a repo first."
+      />
       {projects.map((project) => (
         <List.Section
           key={project.projectPath}

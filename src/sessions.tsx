@@ -93,11 +93,21 @@ function SessionDetail({ session }: { session: PiSession }) {
 export default function Command() {
   const preferences = getPreferenceValues<Preferences>();
   const { data: sessions = [], isLoading } = usePromise(() =>
-    listPiSessions(preferences.agentDir),
+    listPiSessions(preferences.agentDir, preferences.maxIndexedSessions),
   );
 
   return (
     <List isLoading={isLoading} searchBarPlaceholder="Search Pi sessions…">
+      <List.EmptyView
+        icon={Icon.Message}
+        title="No Pi sessions found"
+        description="Pi sessions are read from ~/.pi/agent/sessions by default. Start a Pi conversation or update the Pi Agent Directory preference."
+        actions={
+          <ActionPanel>
+            <Action.OpenInBrowser title="Open Pi Docs" url="https://pi.dev" />
+          </ActionPanel>
+        }
+      />
       {sessions.map((session) => (
         <List.Item
           key={session.filePath}

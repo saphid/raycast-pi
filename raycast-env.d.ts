@@ -16,6 +16,10 @@ type ExtensionPreferences = {
   "defaultProject"?: string,
   /** Default Model - Optional Pi model pattern, for example openai/gpt-4o or anthropic/claude-sonnet-4. */
   "defaultModel"?: string,
+  /** Ask Pi Execution Mode - Controls how much tool access hidden Ask/Transform commands get. */
+  "askExecutionMode": "safe-readonly" | "fast-no-tools",
+  /** Max Indexed Sessions - Limit session indexing for faster project/session lists. */
+  "maxIndexedSessions": "100" | "500" | "all",
   /** Thinking Level - Optional thinking level passed to Pi. */
   "thinkingLevel": "" | "off" | "minimal" | "low" | "medium" | "high" | "xhigh",
   /** Terminal Application - Terminal used for visible Pi handoff. */

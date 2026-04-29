@@ -1,7 +1,7 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
-  "name": "raycast-pi",
-  "title": "Pi",
+  "name": "pi-coding-agent",
+  "title": "Pi Coding Agent",
   "description": "Raycast companion for the Pi coding agent: quick ask, session search, project launch, and terminal handoff.",
   "icon": "icon.png",
   "author": "qazi0",
@@ -107,6 +107,46 @@
       "title": "Default Model",
       "description": "Optional Pi model pattern, for example openai/gpt-4o or anthropic/claude-sonnet-4.",
       "required": false
+    },
+    {
+      "name": "askExecutionMode",
+      "type": "dropdown",
+      "title": "Ask Pi Execution Mode",
+      "description": "Controls how much tool access hidden Ask/Transform commands get.",
+      "default": "safe-readonly",
+      "required": false,
+      "data": [
+        {
+          "title": "Safe Read-Only Project Tools",
+          "value": "safe-readonly"
+        },
+        {
+          "title": "Fast No Tools",
+          "value": "fast-no-tools"
+        }
+      ]
+    },
+    {
+      "name": "maxIndexedSessions",
+      "type": "dropdown",
+      "title": "Max Indexed Sessions",
+      "description": "Limit session indexing for faster project/session lists.",
+      "default": "500",
+      "required": false,
+      "data": [
+        {
+          "title": "100 newest sessions",
+          "value": "100"
+        },
+        {
+          "title": "500 newest sessions",
+          "value": "500"
+        },
+        {
+          "title": "All sessions",
+          "value": "all"
+        }
+      ]
     },
     {
       "name": "thinkingLevel",

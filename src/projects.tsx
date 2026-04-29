@@ -19,10 +19,30 @@ export default function Command() {
     data: projects = [],
     isLoading,
     revalidate,
-  } = usePromise(() => listPiProjects(preferences.agentDir));
+  } = usePromise(() =>
+    listPiProjects(preferences.agentDir, preferences.maxIndexedSessions),
+  );
 
   return (
     <List isLoading={isLoading} searchBarPlaceholder="Search Pi projects…">
+      <List.EmptyView
+        icon={Icon.Terminal}
+        title="No Pi projects found"
+        description="Run Pi in a project first, or set Pi Agent Directory to the folder that contains your sessions."
+        actions={
+          <ActionPanel>
+            <Action.OpenInBrowser
+              title="Open Pi Install Docs"
+              url="https://pi.dev"
+            />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={revalidate}
+            />
+          </ActionPanel>
+        }
+      />
       {projects.map((project) => (
         <List.Item
           key={project.projectPath}

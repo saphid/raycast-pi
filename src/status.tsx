@@ -12,7 +12,7 @@ import { formatRelativeDate } from "./lib/format";
 export default function Command() {
   const preferences = getPreferenceValues<Preferences>();
   const { data: sessions = [], isLoading } = usePromise(() =>
-    listPiSessions(preferences.agentDir),
+    listPiSessions(preferences.agentDir, "100"),
   );
   const latest = sessions[0];
   const todayStart = new Date();

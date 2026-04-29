@@ -21,6 +21,11 @@ export default function Command() {
       isLoading={isLoading}
       searchBarPlaceholder="Search Pi prompts and skills…"
     >
+      <List.EmptyView
+        icon={Icon.Hammer}
+        title="No Pi resources found"
+        description="This command looks for prompts and skills in ~/.pi/agent plus project .pi/.agents folders."
+      />
       {resources.map((resource) => (
         <List.Item
           key={resource.filePath}

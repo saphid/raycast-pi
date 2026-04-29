@@ -11,7 +11,7 @@ describe("buildPiArgs", () => {
         prompt: "Explain the code",
         model: "openai/gpt-5",
         thinkingLevel: "low",
-        readOnlyTools: true,
+        toolMode: "safe-readonly",
       }),
     ).toEqual([
       "--model",
@@ -23,6 +23,12 @@ describe("buildPiArgs", () => {
       "-p",
       "Explain the code",
     ]);
+  });
+
+  it("builds fast no-tools print mode args", () => {
+    expect(
+      buildPiArgs({ print: true, prompt: "Hello", toolMode: "fast-no-tools" }),
+    ).toEqual(["--no-tools", "-p", "Hello"]);
   });
 
   it("builds session resume and fork args", () => {

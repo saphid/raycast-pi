@@ -12,15 +12,18 @@ export type ThinkingLevel =
   | "high"
   | "xhigh";
 
+export type AskExecutionMode = "fast-no-tools" | "safe-readonly";
+
 export type PiPreferences = {
   piBinaryPath?: string;
   defaultModel?: string;
   thinkingLevel?: ThinkingLevel;
+  askExecutionMode?: AskExecutionMode;
 };
 
 export type PiArgOptions = {
   print?: boolean;
-  readOnlyTools?: boolean;
+  toolMode?: AskExecutionMode;
   prompt?: string;
   model?: string;
   thinkingLevel?: ThinkingLevel;
@@ -65,7 +68,9 @@ export function buildPiArgs(options: PiArgOptions): string[] {
   if (options.thinkingLevel) args.push("--thinking", options.thinkingLevel);
   if (options.sessionFile) args.push("--session", options.sessionFile);
   if (options.forkSessionFile) args.push("--fork", options.forkSessionFile);
-  if (options.readOnlyTools) args.push("--tools", "read,grep,find,ls");
+  if (options.toolMode === "fast-no-tools") args.push("--no-tools");
+  if (options.toolMode === "safe-readonly")
+    args.push("--tools", "read,grep,find,ls");
   if (options.print) args.push("-p");
   if (options.prompt) args.push(options.prompt);
 
@@ -94,7 +99,7 @@ export async function runPiPrint(
   const piBinary = resolvePiBinary(options.preferences);
   const args = buildPiArgs({
     print: true,
-    readOnlyTools: true,
+    toolMode: options.preferences?.askExecutionMode ?? "safe-readonly",
     prompt,
     model: options.preferences?.defaultModel,
     thinkingLevel: options.preferences?.thinkingLevel,
