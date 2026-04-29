@@ -1,0 +1,28 @@
+name: Bug report
+description: Report a problem with Pi Coding Agent for Raycast
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened?
+    validations:
+      required: true
+  - type: input
+    id: command
+    attributes:
+      label: Raycast command
+      placeholder: Ask Pi, Browse Sessions, Launch Project, etc.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error text or dev log
+      description: Paste any Raycast error details or `npm run dev` output.
+      render: text
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: macOS version, Raycast version, Pi version, terminal app

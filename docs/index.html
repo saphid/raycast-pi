@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pi Coding Agent for Raycast</title>
+    <style>
+      :root { color-scheme: dark; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      body { margin: 0; background: #0c0d10; color: #f4f4f5; }
+      main { max-width: 860px; margin: 0 auto; padding: 72px 24px; }
+      .hero { display: flex; gap: 28px; align-items: center; }
+      img { width: 112px; height: 112px; border-radius: 24px; }
+      h1 { font-size: clamp(2.2rem, 8vw, 4.5rem); line-height: 1; margin: 0; }
+      p { color: #cbd5e1; font-size: 1.1rem; line-height: 1.65; }
+      .actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 28px 0; }
+      a.button { display: inline-block; color: #020617; background: #7dd3fc; padding: 12px 16px; border-radius: 12px; text-decoration: none; font-weight: 700; }
+      a.secondary { color: #f4f4f5; background: #27272a; }
+      section { margin-top: 48px; }
+      ul { color: #d4d4d8; line-height: 1.8; }
+      code { background: #18181b; padding: 2px 6px; border-radius: 6px; }
+      pre { background: #18181b; padding: 18px; border-radius: 14px; overflow: auto; }
+      .note { border: 1px solid #334155; border-radius: 14px; padding: 16px; background: #111827; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="hero">
+        <img src="../assets/icon.png" alt="Pi Coding Agent icon" />
+        <div>
+          <h1>Pi Coding Agent for Raycast</h1>
+          <p>A fast Raycast companion for Pi: ask questions, browse sessions, launch projects, transform selected text, and hand risky work off to visible terminal sessions.</p>
+        </div>
+      </div>
+      <div class="actions">
+        <a class="button" href="https://github.com/saphid/raycast-pi">View on GitHub</a>
+        <a class="button secondary" href="https://pi.dev">Install Pi</a>
+      </div>
+      <section>
+        <h2>Highlights</h2>
+        <ul>
+          <li><strong>Ask Pi</strong> from Raycast root search and see the streamed answer.</li>
+          <li><strong>Browse Sessions</strong> from local Pi JSONL history without loading huge files into memory.</li>
+          <li><strong>Launch Projects</strong> and continue/fork sessions in your preferred terminal.</li>
+          <li><strong>Transform Selection</strong> for code explanation, bug finding, tests, refactors, TypeScript conversion, and writing cleanup.</li>
+          <li><strong>Safe defaults</strong>: hidden commands can use no tools or read-only project tools; mutating workflows hand off to terminal.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Try it locally</h2>
+        <pre><code>git clone https://github.com/saphid/raycast-pi.git
+cd raycast-pi
+npm install
+npm run dev</code></pre>
+      </section>
+      <section class="note">
+        <h2>Store status</h2>
+        <p>The extension is prepared for Raycast Store submission. The remaining external step is replacing the manifest author with the real Raycast Store username that will publish it.</p>
+      </section>
+    </main>
+  </body>
+</html>
