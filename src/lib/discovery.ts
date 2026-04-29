@@ -130,16 +130,43 @@ async function findSessionFiles(
     (filePath) => filePath.endsWith(".jsonl"),
     3000,
   );
-  const candidates = await Promise.all(
-    files.map(async (filePath) => {
-      const stat = await fs.stat(filePath);
-      return { filePath, mtimeMs: stat.mtimeMs, mtime: stat.mtime };
-    }),
-  );
+  const candidates: FileCandidate[] = [];
+  for (const filePath of files) {
+    const stat = await fs.stat(filePath);
+    candidates.push({ filePath, mtimeMs: stat.mtimeMs, mtime: stat.mtime });
+  }
 
   return candidates
     .sort((a, b) => b.mtimeMs - a.mtimeMs)
     .slice(0, maxSessionCount(maxIndexedSessions));
+}
+
+async function readSessionSummaryContent(filePath: string): Promise<string> {
+  const stat = await fs.stat(filePath);
+  const maxChunkBytes = 128 * 1024;
+
+  if (stat.size <= maxChunkBytes * 2) return fs.readFile(filePath, "utf8");
+
+  const handle = await fs.open(filePath, "r");
+  try {
+    const head = Buffer.alloc(maxChunkBytes);
+    const tail = Buffer.alloc(maxChunkBytes);
+    const headRead = await handle.read(head, 0, maxChunkBytes, 0);
+    const tailRead = await handle.read(
+      tail,
+      0,
+      maxChunkBytes,
+      Math.max(0, stat.size - maxChunkBytes),
+    );
+    const headText = head.subarray(0, headRead.bytesRead).toString("utf8");
+    const rawTailText = tail.subarray(0, tailRead.bytesRead).toString("utf8");
+    const firstNewline = rawTailText.indexOf("\n");
+    const tailText =
+      firstNewline >= 0 ? rawTailText.slice(firstNewline + 1) : rawTailText;
+    return `${headText}\n${tailText}`;
+  } finally {
+    await handle.close();
+  }
 }
 
 export async function listPiSessions(
@@ -153,26 +180,27 @@ export async function listPiSessions(
   const cache = await readSessionCache();
   let cacheChanged = false;
 
-  const sessions = await Promise.all(
-    files.map(async (candidate) => {
-      const cached = cache.sessions[candidate.filePath];
-      if (cached && cached.mtimeMs === candidate.mtimeMs)
-        return sessionFromCache(cached.session);
+  const sessions: PiSession[] = [];
+  for (const candidate of files) {
+    const cached = cache.sessions[candidate.filePath];
+    if (cached && cached.mtimeMs === candidate.mtimeMs) {
+      sessions.push(sessionFromCache(cached.session));
+      continue;
+    }
 
-      const content = await fs.readFile(candidate.filePath, "utf8");
-      const session = parseSessionContent(
-        content,
-        candidate.filePath,
-        candidate.mtime,
-      );
-      cache.sessions[candidate.filePath] = {
-        mtimeMs: candidate.mtimeMs,
-        session: sessionToCache(session),
-      };
-      cacheChanged = true;
-      return session;
-    }),
-  );
+    const content = await readSessionSummaryContent(candidate.filePath);
+    const session = parseSessionContent(
+      content,
+      candidate.filePath,
+      candidate.mtime,
+    );
+    cache.sessions[candidate.filePath] = {
+      mtimeMs: candidate.mtimeMs,
+      session: sessionToCache(session),
+    };
+    cacheChanged = true;
+    sessions.push(session);
+  }
 
   const activeFiles = new Set(files.map((file) => file.filePath));
   for (const filePath of Object.keys(cache.sessions)) {
