@@ -14,9 +14,9 @@
     {
       "name": "ask-pi",
       "title": "Ask Pi",
-      "subtitle": "Copy Answer",
-      "description": "Ask Pi from Raycast root and copy the answer without opening a view",
-      "mode": "no-view",
+      "subtitle": "Show Result",
+      "description": "Ask Pi from Raycast root and show the streamed answer",
+      "mode": "view",
       "arguments": [
         {
           "name": "question",
@@ -27,17 +27,17 @@
       ]
     },
     {
-      "name": "ask-pi-detail",
-      "title": "Ask Pi (Show Result)",
-      "subtitle": "Result View",
-      "description": "Ask Pi and show the streamed answer in Raycast",
-      "mode": "view",
+      "name": "ask-pi-copy",
+      "title": "Ask Pi (Copy Answer)",
+      "subtitle": "No View",
+      "description": "Ask Pi and copy the answer without opening a view",
+      "mode": "no-view",
       "arguments": [
         {
           "name": "question",
           "placeholder": "What do you want to ask Pi?",
           "type": "text",
-          "required": false
+          "required": true
         }
       ]
     },
