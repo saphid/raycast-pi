@@ -10,6 +10,7 @@
       main { max-width: 860px; margin: 0 auto; padding: 72px 24px; }
       .hero { display: flex; gap: 28px; align-items: center; }
       img { width: 112px; height: 112px; border-radius: 24px; }
+      img.screenshot { width: 100%; height: auto; border-radius: 18px; border: 1px solid #334155; }
       h1 { font-size: clamp(2.2rem, 8vw, 4.5rem); line-height: 1; margin: 0; }
       p { color: #cbd5e1; font-size: 1.1rem; line-height: 1.65; }
       .actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 28px 0; }
@@ -25,7 +26,7 @@
   <body>
     <main>
       <div class="hero">
-        <img src="../assets/icon.png" alt="Pi Coding Agent icon" />
+        <img src="assets/icon.png" alt="Pi Coding Agent icon" />
         <div>
           <h1>Pi Coding Agent for Raycast</h1>
           <p>A fast Raycast companion for Pi: ask questions, browse sessions, launch projects, transform selected text, and hand risky work off to visible terminal sessions.</p>
@@ -44,6 +45,11 @@
           <li><strong>Transform Selection</strong> for code explanation, bug finding, tests, refactors, TypeScript conversion, and writing cleanup.</li>
           <li><strong>Safe defaults</strong>: hidden commands can use no tools or read-only project tools; mutating workflows hand off to terminal.</li>
         </ul>
+      </section>
+      <section>
+        <h2>GitHub repo</h2>
+        <p>The repository includes CI, issue templates, store-submission notes, and a helper script for copying the extension into a raycast/extensions checkout.</p>
+        <img class="screenshot" src="screenshots/github-repo.png" alt="GitHub repository screenshot" />
       </section>
       <section>
         <h2>Try it locally</h2>
